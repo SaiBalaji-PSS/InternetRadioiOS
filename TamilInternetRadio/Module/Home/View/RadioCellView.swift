@@ -22,7 +22,7 @@ struct RadioCellView: View {
                 Image(systemName: "radio")
                     .resizable()
                     .tint(.green)
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fit)
                     .frame(width: 100,height: 100)
             }
             Text(radioItem.name?.uppercased() ?? "N/A")

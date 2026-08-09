@@ -20,16 +20,17 @@ struct NowplayingView: View {
             AsyncImage(url: URL(string: appState.currentPlayingMedia?.favicon ?? "")) { image in
                 image
                     .resizable()
-                    .frame(width: 50,height: 50)
+                    .frame(width: 25,height: 25)
                 
             } placeholder: {
                 Image(systemName: "radio")
                     .resizable()
-                    .frame(width: 50,height: 50)
+                    .frame(width: 25,height: 25)
             }
             VStack(alignment:.leading){
                 Text("Now Playing")
                 Text(appState.currentPlayingMedia?.name ?? "N/A")
+                    .lineLimit(1)
                     .bold()
             }
             
@@ -65,9 +66,7 @@ struct NowplayingView: View {
                 }
             }
            
-        }.frame(maxWidth: .infinity).padding().background(.white).overlay(content: {
-            Rectangle().stroke(Color.gray, lineWidth: 1.0)
-        })
+        }.frame(maxWidth: .infinity).padding(.horizontal).padding(.vertical,6).glassEffect()
     }
 }
 

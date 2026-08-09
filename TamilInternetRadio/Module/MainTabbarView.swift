@@ -21,7 +21,7 @@ struct MainTabbarView: View {
                         .environmentObject(appState)
                 })
                 Tab("Library",systemImage: "radio") {
-                    Text("Library")
+                    LibraryView()
                         .environmentObject(appState)
                 }
                 

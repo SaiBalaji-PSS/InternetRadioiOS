@@ -19,7 +19,7 @@ struct StationDetailView: View {
                     .resizable()
                     .frame(height: 200)
                     .frame(maxWidth: .infinity)
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fit)
                   
                 
             } placeholder: {
@@ -38,7 +38,7 @@ struct StationDetailView: View {
             }
             VStack(spacing:18){
                 Text(stationData.name ?? "N/A")
-                    .font(.largeTitle)
+                    .font(.title)
                     .bold()
                 Text(stationData.state ?? "N/A")
                     .font(.title)
@@ -51,7 +51,7 @@ struct StationDetailView: View {
                         .font(.title)
                 }
                 
-            }
+            }.frame(maxWidth: .infinity)
             HStack(spacing:18){
                 Button {
                     if self.vm.isPlaying{
@@ -99,6 +99,20 @@ struct StationDetailView: View {
                             .frame(width: 24, height: 24)
                     }
                         
+                }
+                Button{
+                    self.vm.saveRadioStationToLibrary(radioStation: stationData)
+                } label:{
+                    ZStack(alignment: .center) {
+                        Circle()
+                            .fill(.blue)
+                            .frame(width: 70,height: 70)
+                        Image(systemName: vm.saveSuccess ? "bookmark.fill" : "bookmark")
+                            .resizable()
+                            .foregroundStyle(.white)
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
+                    }
                 }
                 Spacer()
                 HStack(spacing:8){

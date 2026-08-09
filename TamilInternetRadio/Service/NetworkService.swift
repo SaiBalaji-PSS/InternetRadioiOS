@@ -97,14 +97,14 @@ enum EndPoint: EndPointProtocol{
         }
     }
     
-    var headers: [String : String] {
-        switch self{
-            case .allStations:
-            return [:]
+    var headers: [String: String] {
+        switch self {
+        case .allStations:
+            return ["User-Agent": "TamilInternetRadio/1.0"]
         case .search(let name):
-            return [:]
+            return ["User-Agent": "TamilInternetRadio/1.0"]
         case .streamingUrl(let stationId):
-            return [:]
+            return ["User-Agent": "TamilInternetRadio/1.0"]
         }
     }
     
