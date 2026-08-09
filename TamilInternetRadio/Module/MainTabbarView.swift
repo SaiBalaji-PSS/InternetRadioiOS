@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabbarView: View {
     @StateObject private var appState = AppState()
+    @State var isPlayerDetialPresented: Bool = false
     var body: some View {
         ZStack(alignment:.bottom){
             TabView {
@@ -31,6 +32,14 @@ struct MainTabbarView: View {
                 NowplayingView(appState: appState)
                     .padding(.bottom,50)
                     .environmentObject(appState)
+                    .onTapGesture {
+                        isPlayerDetialPresented = true 
+                    }
+            }
+                
+        }.fullScreenCover(isPresented: $isPlayerDetialPresented) {
+            if let currentPlayingMedia = self.appState.currentPlayingMedia{
+                NowPlayingDetailView(appState: appState,playingItem: currentPlayingMedia)
             }
         }
         

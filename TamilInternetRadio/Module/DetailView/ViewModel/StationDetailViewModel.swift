@@ -17,22 +17,22 @@ class StationDetailViewModel: ObservableObject{
     @Published var isPlaying: Bool = false
     @Published var saveSuccess: Bool = false
     private let service: NetworkServiceProtocol
-    let stationUrlOverrides: [String: String] = [
-        "f4092372-9aac-4af6-8067-4d1c59ea4530": "https://radios.crabdance.com:8002/4" // big fm
-    ]
+//    let stationUrlOverrides: [String: String] = [
+//        "f4092372-9aac-4af6-8067-4d1c59ea4530": "https://radios.crabdance.com:8002/4" // big fm
+//    ]
     
     init(service: NetworkServiceProtocol){
         self.service = service
     }
     
     func getResolvedUrl(for stationId: String)async{
-        if let stationUrl = stationUrlOverrides[stationId]{
-            if let streamingUrl = URL(string: stationUrl){
-                self.play(url: streamingUrl)
-                self.isPlaying = PlayerService.shared.isPlaying
-            }
-            return
-        }
+//        if let stationUrl = stationUrlOverrides[stationId]{
+//            if let streamingUrl = URL(string: stationUrl){
+//                self.play(url: streamingUrl)
+//                self.isPlaying = PlayerService.shared.isPlaying
+//            }
+//            return
+//        }
         do{
             let result: StationUrlModel = try await self.service.performRequest(endPoint: .streamingUrl(stationId: stationId), body: nil as String?)
             if result.ok{
