@@ -1,146 +1,152 @@
 //
-//  StationDetailView.swift
+//  StatinoDetailView.swift
 //  TamilInternetRadio
 //
-//  Created by Sai Balaji on 08/08/26.
+//  Created by Sai Balaji on 11/08/26.
 //
 
 import SwiftUI
 
 struct StationDetailView: View {
-    let stationData: RadioStation
     @EnvironmentObject var appState: AppState
     @StateObject private var vm = StationDetailViewModel(service: NetworkService())
-    
+  
+    let stationData: RadioStation
+    @State private var timer: Timer?
+    @Environment(\.dismiss) var dismiss
     var body: some View {
-        VStack{
-            AsyncImage(url: URL(string: stationData.favicon ?? "")) { image in
+        VStack(spacing:28){
+            AsyncImage(url: URL(string: stationData.favicon ?? "")) { image  in
                 image
                     .resizable()
-                    .frame(height: 200)
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(contentMode: .fit)
-                  
+                    .frame(width: 200,height: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 8.0))
+                    .padding()
+                    .glassEffect(.regular.interactive(),in: .rect)
+                    .clipShape(RoundedRectangle(cornerRadius: 8.0))
+                    .shadow(radius: 6.0,x:3,y:3)
                 
             } placeholder: {
                 Image(systemName: "radio")
                     .resizable()
-                    .frame(height: 200)
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(contentMode: .fill)
-
-            }.overlay {
-                Rectangle()
-                    .stroke(Color.black, lineWidth: 0.5)
-                    .frame(height: 200)
-                    .frame(maxWidth: .infinity)
-
+                    .frame(width: 200,height: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 8.0))
+                    .padding()
+                    .glassEffect(.regular.interactive(),in: .rect)
+                    .clipShape(RoundedRectangle(cornerRadius: 8.0))
+                    .shadow(radius: 6.0,x:3,y:3)
             }
-            VStack(spacing:18){
-                Text(stationData.name ?? "N/A")
-                    .font(.title)
-                    .bold()
-                Text(stationData.state ?? "N/A")
-                    .font(.title)
-                Text(stationData.country ?? "N/A")
-                    .font(.title)
-                Text("Codec \(stationData.codec ?? "N/A")")
-                    .font(.title)
-                if stationData.bitrate != 0{
-                    Text("Bit rate: \(stationData.bitrate ?? 0) kbps")
-                        .font(.title)
-                }
-                
-            }.frame(maxWidth: .infinity)
-            HStack(spacing:18){
-                Button {
-                    if self.vm.isPlaying{
-                        self.vm.pause()
-                    }
-                    else{
-                        if let stationUuid = stationData.stationUuid{
-                            Task{
-                                await self.vm.getResolvedUrl(for: stationUuid)
-                                if self.vm.isPlaying{
-                                    self.appState.currentPlayingMedia = stationData
-                                }
-                                
-                            }
-                        }
-                    }
-                    
-                } label: {
-                    ZStack(alignment:.center){
-                        Circle()
-                            .fill(.blue)
-                            .frame(width: 70,height: 70)
-                        Image(systemName: vm.isPlaying ? "pause.fill" : "play.fill")
-                            .resizable()
-                            .foregroundStyle(.white)
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                    }
-                        
-                }
-                Button {
-                    if let stationUuid = stationData.stationUuid{
-                        self.vm.refresh(stationId: stationUuid)
-                    }
-                   
-                } label: {
-                    ZStack(alignment:.center){
-                        Circle()
-                            .fill(.blue)
-                            .frame(width: 70,height: 70)
-                        Image(systemName: "arrow.clockwise")
-                            .resizable()
-                            .foregroundStyle(.white)
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                    }
-                        
-                }
-                Button{
-                    self.vm.saveRadioStationToLibrary(radioStation: stationData)
-                } label:{
-                    ZStack(alignment: .center) {
-                        Circle()
-                            .fill(.blue)
-                            .frame(width: 70,height: 70)
-                        Image(systemName: vm.saveSuccess ? "bookmark.fill" : "bookmark")
-                            .resizable()
-                            .foregroundStyle(.white)
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                    }
+            HStack{
+                VStack(alignment:.leading,spacing:8){
+                    Text(stationData.name ?? "")
+                        .bold()
+                        .font(.title2)
+                    Text(stationData.country ?? "")
+                        .font(.title3)
+                    Text(stationData.codec ?? "")
+                        .font(.subheadline)
+                        .italic()
                 }
                 Spacer()
-                HStack(spacing:8){
+                HStack{
                     Circle()
                         .fill(.red)
                         .frame(width: 10,height: 10)
-                    Text("Live")
+                    Text("LIVE")
+                        .bold()
+                }.opacity(self.vm.liveLabelOpacity)
+                
+                
+            }.padding()
+            
+            HStack{
+                
+                
+                
+                CustomPlayerButton(buttonImageName: "arrow.clockwise", xOffset: 0.0) {
+                    if let stationId = stationData.stationUuid{
+                        Task{
+                            await self.vm.refresh(stationId: stationId)
+                            if self.vm.isPlaying{
+                                self.appState.currentPlayingMedia = stationData
+                                self.appState.shouldShowNowPlayingView = true
+                            }
+                        }
+                    }
                 }
+                
+                Spacer()
+                
+                CustomPlayerButton(buttonImageName: self.vm.isPlaying ? "pause.fill" : "play.fill", xOffset: self.vm.isPlaying ? 0 : 3) {
+                    
+                    if vm.isPlaying{
+                        
+                      
+                        
+                        
+                        self.vm.pause()
+                    }
+                    else{
+                       
+                        
+                        if let stationId = stationData.stationUuid{
+                            Task{
+                                await self.vm.getResolvedUrl(for: stationId)
+                                if self.vm.isPlaying{
+                                    self.appState.currentPlayingMedia = stationData
+                                    self.appState.shouldShowNowPlayingView = true
+                                }
+                                
 
+                            }
+                            
+                        }
+                    }
+                }
+                
+                Spacer()
+                CustomPlayerButton(buttonImageName: "airplay.audio", xOffset: 0.0) {
+                    
+                }
+                
+                
+                
             }.padding()
             Spacer()
-        }
-        .alert("Info", isPresented: $vm.showMessage, actions: {
-            Button("OK"){
-                
+            HStack{
+                Spacer()
+                CustomPlayerButton(buttonImageName: "xmark", xOffset: 0.0) {
+                    self.dismiss()
+                }
+                Spacer()
             }
-        },message: {
-            Text(self.vm.message)
-        })
-        .onChange(of: vm.isPlaying) { oldValue, newValue in
-            self.appState.shouldShowNowPlayingView = newValue
+            
         }
-        .onAppear {
+        .toolbarVisibility(.hidden, for: .tabBar)
+        .onAppear(perform: {
+            
             self.appState.isDetailScreenActive = true
-        }
+            print("ON APPEAR CALLED \(self.appState.currentPlayingMedia?.name)")
+            
+            //This is needed to check if the station played in the app currently is same as the search tap navigation station. If true then only we need to pre populate the play/pause button status. If they are not equal then no need to pre populate the UI with play pause status
+            
+            if self.stationData.stationUuid == self.appState.currentPlayingMedia?.stationUuid{
+                self.vm.isPlaying = PlayerService.shared.isPlaying
+                if  PlayerService.shared.isPlaying{
+                    
+                    self.vm.startLiveLabelBlinking()
+                }
+                else{
+                    self.vm.stopLiveLabelBlinking()
+                }
+            }
+        })
         .onDisappear {
             self.appState.isDetailScreenActive = false
+            self.vm.stopLiveLabelBlinking()
         }
+        
+        
     }
 }
 

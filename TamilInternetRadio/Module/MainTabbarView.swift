@@ -13,10 +13,6 @@ struct MainTabbarView: View {
     var body: some View {
         ZStack(alignment:.bottom){
             TabView {
-                Tab("Home",systemImage: "house") {
-                    HomeView()
-                        .environmentObject(appState)
-                }
                 Tab("Search", systemImage: "magnifyingglass", content: {
                     SearchView()
                         .environmentObject(appState)
@@ -39,7 +35,8 @@ struct MainTabbarView: View {
                 
         }.fullScreenCover(isPresented: $isPlayerDetialPresented) {
             if let currentPlayingMedia = self.appState.currentPlayingMedia{
-                NowPlayingDetailView(appState: appState,playingItem: currentPlayingMedia)
+                StationDetailView(stationData: currentPlayingMedia)
+                    .environmentObject(appState)
             }
         }
         

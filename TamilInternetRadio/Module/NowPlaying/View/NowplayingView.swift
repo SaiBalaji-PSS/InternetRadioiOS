@@ -11,6 +11,7 @@ struct NowplayingView: View {
     
     @EnvironmentObject var appState: AppState
     @StateObject private var vm: NowplayingViewModel
+    @State private var playbackObserver: NSObjectProtocol?
     
     init(appState: AppState){
         _vm = StateObject(wrappedValue: NowplayingViewModel(appState: appState))
@@ -61,12 +62,26 @@ struct NowplayingView: View {
                         .resizable()
                         .frame(width: 24,height: 24)
                         .foregroundStyle(.red)
-                        
-                       
+                    
+                    
                 }
             }
-           
+            
         }.frame(maxWidth: .infinity).padding(.horizontal).padding(.vertical,6).glassEffect()
+            .onAppear {
+                playbackObserver = NotificationCenter.default.addObserver(forName: .playbackStatusChanged, object: nil, queue: .main) { notification in
+                    guard let isPlaying = notification.userInfo?["isPlaying"] as? Bool else { return }
+                    Task { @MainActor in
+                        vm.isPlaying = isPlaying
+                    }
+                }
+            }
+            .onDisappear {
+                if let playbackObserver {
+                    NotificationCenter.default.removeObserver(playbackObserver)
+                    self.playbackObserver = nil
+                }
+            }
     }
 }
 

@@ -15,6 +15,7 @@ struct SearchView: View {
     @FocusState private var searchField: Field?
     @State var shouldNavigateToDetail: Bool = false
     @State var selectedStation: RadioStation?
+    @EnvironmentObject var appState: AppState
     var body: some View {
         NavigationStack{
             ZStack{
@@ -25,11 +26,12 @@ struct SearchView: View {
                                 .onTapGesture {
                                     self.selectedStation = searchResult
                                     self.shouldNavigateToDetail = true
+                                    
                                 }
                             
                             
                         }
-                    }.animation(.easeIn, value: vm.searchResult.map{$0.id})
+                    }
                 }
                 if vm.showNoResultView{
                     VStack(spacing:28){
@@ -63,6 +65,7 @@ struct SearchView: View {
                 }
             })
             .navigationTitle("Search")
+            
             .navigationDestination(isPresented: $shouldNavigateToDetail) {
                 if let selectedStation{
                     StationDetailView(stationData: selectedStation)
@@ -75,4 +78,5 @@ struct SearchView: View {
 
 #Preview {
     SearchView()
+        .environmentObject(AppState())
 }

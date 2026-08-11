@@ -16,6 +16,9 @@ class StationDetailViewModel: ObservableObject{
     @Published var message: String = ""
     @Published var isPlaying: Bool = false
     @Published var saveSuccess: Bool = false
+    @Published var liveLabelOpacity: Double = 0.0
+    var timer: Timer?
+    
     private let service: NetworkServiceProtocol
 //    let stationUrlOverrides: [String: String] = [
 //        "f4092372-9aac-4af6-8067-4d1c59ea4530": "https://radios.crabdance.com:8002/4" // big fm
@@ -61,18 +64,19 @@ class StationDetailViewModel: ObservableObject{
     }
     func play(url: URL){
         PlayerService.shared.play(url: url)
+        self.startLiveLabelBlinking()
     }
     func pause(){
         PlayerService.shared.pause()
         self.isPlaying = PlayerService.shared.isPlaying
+        self.stopLiveLabelBlinking()
     }
     //Stops the current play, refreshes streaming url
-    func refresh(stationId: String){
+    func refresh(stationId: String)async {
         PlayerService.shared.stop()
         self.isPlaying = PlayerService.shared.isPlaying
-        Task{
-            await self.getResolvedUrl(for: stationId)
-        }
+        await self.getResolvedUrl(for: stationId)
+        
     }
     
     func saveRadioStationToLibrary(radioStation: RadioStation){
@@ -93,6 +97,25 @@ class StationDetailViewModel: ObservableObject{
             self.saveSuccess = false
         }
         
+    }
+    
+    func startLiveLabelBlinking(){
+        if self.timer?.isValid ?? false{
+            return
+        }
+        self.timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true , block: { [weak self] timer  in
+            
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                self.liveLabelOpacity = self.liveLabelOpacity == 0.0 ? 1.0 : 0.0
+            }
+        })
+    }
+    
+    func stopLiveLabelBlinking(){
+        self.timer?.invalidate()
+        self.timer = nil
+        self.liveLabelOpacity = 0.0
     }
 }
 
