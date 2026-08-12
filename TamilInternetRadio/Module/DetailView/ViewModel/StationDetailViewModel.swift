@@ -91,7 +91,9 @@ class StationDetailViewModel: ObservableObject{
         }
         do{
             try PersistenceController.shared.saveData()
-            self.saveSuccess = true 
+            self.saveSuccess = true
+            self.showMessage = true
+            self.message = "Station added to library."
         }
         catch{
             print(error)

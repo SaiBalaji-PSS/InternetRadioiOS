@@ -144,6 +144,7 @@ struct StationDetailView: View {
             }
             
         }
+        .navigationBarTitleDisplayMode(.inline)
         .toolbarVisibility(.hidden, for: .tabBar)
         .alert("Sora Radio", isPresented: $vm.showMessage, actions: {
             Button("OK"){
