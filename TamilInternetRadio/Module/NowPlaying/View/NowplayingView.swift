@@ -10,11 +10,15 @@ import SwiftUI
 struct NowplayingView: View {
     
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var playerService: PlayerService
     @StateObject private var vm: NowplayingViewModel
-    @State private var playbackObserver: NSObjectProtocol?
     
-    init(appState: AppState){
-        _vm = StateObject(wrappedValue: NowplayingViewModel(appState: appState))
+//    @State private var playbackObserver: NSObjectProtocol?
+    
+    init(appState: AppState,playerService: PlayerService){
+        
+        _vm = StateObject(wrappedValue: NowplayingViewModel(appState: appState, playerService: playerService))
+    
     }
     var body: some View {
         HStack(spacing:28){
@@ -36,7 +40,7 @@ struct NowplayingView: View {
             }
             
             Button {
-                if vm.isPlaying{
+                if self.playerService.isPlaying{
                     self.vm.pause()
                 }
                 else{
@@ -46,7 +50,7 @@ struct NowplayingView: View {
                 }
             } label: {
                 ZStack(alignment:.center){
-                    Image(systemName: vm.isPlaying ? "pause.fill" : "play.fill")
+                    Image(systemName: self.playerService.isPlaying ? "pause.fill" : "play.fill")
                         .resizable()
                         .foregroundStyle(.blue)
                         .frame(width: 24,height:24)
@@ -69,23 +73,23 @@ struct NowplayingView: View {
             
         }.frame(maxWidth: .infinity).padding(.horizontal).padding(.vertical,6).glassEffect()
             .onAppear {
-                playbackObserver = NotificationCenter.default.addObserver(forName: .playbackStatusChanged, object: nil, queue: .main) { notification in
-                    guard let isPlaying = notification.userInfo?["isPlaying"] as? Bool else { return }
-                    Task { @MainActor in
-                        vm.isPlaying = isPlaying
-                    }
-                }
+//                playbackObserver = NotificationCenter.default.addObserver(forName: .playbackStatusChanged, object: nil, queue: .main) { notification in
+//                    guard let isPlaying = notification.userInfo?["isPlaying"] as? Bool else { return }
+//                    Task { @MainActor in
+//                        vm.isPlaying = isPlaying
+//                    }
+//                }
             }
             .onDisappear {
-                if let playbackObserver {
-                    NotificationCenter.default.removeObserver(playbackObserver)
-                    self.playbackObserver = nil
-                }
+//                if let playbackObserver {
+//                    NotificationCenter.default.removeObserver(playbackObserver)
+//                    self.playbackObserver = nil
+//                }
             }
     }
 }
 
 #Preview {
-    NowplayingView(appState: AppState())
+    NowplayingView(appState: AppState(),playerService: PlayerService())
         .environmentObject(AppState())
 }

@@ -11,22 +11,25 @@ import Combine
 @MainActor
 class NowplayingViewModel: ObservableObject{
     let appState: AppState
-    @Published var isPlaying: Bool = false
+    let playerService: PlayerService
+  
     
-    init(appState: AppState){
+    
+    init(appState: AppState,playerService: PlayerService){
         self.appState = appState
-        self.isPlaying = PlayerService.shared.isPlaying
+        self.playerService = playerService
+    
     }
     func play(url: URL){
-        PlayerService.shared.play(url: url)
-        self.isPlaying = true
+        self.playerService.play(url: url)
+        
     }
     func pause(){
-        PlayerService.shared.pause()
-        self.isPlaying = false 
+        self.playerService.pause()
+       
     }
     func close(){
-        PlayerService.shared.stop()
+        self.playerService.stop()
         //now playing view will be hidden
         self.appState.shouldShowNowPlayingView = false
     }

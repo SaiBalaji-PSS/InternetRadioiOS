@@ -100,5 +100,9 @@ class PersistenceController: ObservableObject{
         return result
     }
     
+    func deleteData(data: NSManagedObject)throws {
+        context.delete(data)
+        try self.saveData()
+    }
 }
                                 

@@ -16,9 +16,11 @@ class NowPlayingDetailViewModel: ObservableObject{
     @Published var message: String = ""
     private var appState: AppState
     private let networkSerivce: NetworkServiceProtocol
-    init(appState: AppState,networkSerivce: NetworkServiceProtocol){
+    private let playerService: PlayerService
+    
+    init(appState: AppState,playerService: PlayerService,networkSerivce: NetworkServiceProtocol){
         self.appState = appState
-        self.isPlaying = PlayerService.shared.isPlaying
+        self.playerService = playerService
         self.networkSerivce = networkSerivce
     }
 
@@ -29,8 +31,7 @@ class NowPlayingDetailViewModel: ObservableObject{
     private func play(url: URL,item: RadioStation){
         
         if let streamingUrlString = item.urlResolved, let streamingUrl = URL(string: streamingUrlString){
-            PlayerService.shared.play(url: streamingUrl)
-            self.isPlaying = PlayerService.shared.isPlaying
+            self.playerService.play(url: streamingUrl)
             self.appState.currentPlayingMedia = item
         }
     }
@@ -56,7 +57,6 @@ class NowPlayingDetailViewModel: ObservableObject{
     }
     
     func pause(){
-        PlayerService.shared.pause()
-        self.isPlaying = PlayerService.shared.isPlaying
+        self.playerService.pause()
     }
 }

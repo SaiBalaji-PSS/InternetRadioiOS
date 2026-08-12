@@ -11,10 +11,10 @@ struct NowPlayingDetailView: View {
     @StateObject private var vm: NowPlayingDetailViewModel
    
     let playingItem: RadioStation
-    
+   
     @Environment(\.dismiss) var dismiss
-    init(appState: AppState,playingItem: RadioStation){
-        _vm = StateObject(wrappedValue: NowPlayingDetailViewModel(appState: appState, networkSerivce: NetworkService()))
+    init(appState: AppState,playingItem: RadioStation,playerService: PlayerService){
+        _vm = StateObject(wrappedValue: NowPlayingDetailViewModel(appState: appState, playerService: playerService, networkSerivce: NetworkService()))
         self.playingItem = playingItem
     }
     var body: some View {
@@ -135,5 +135,5 @@ struct NowPlayingDetailView: View {
 }
 
 #Preview {
-    NowPlayingDetailView(appState: AppState(), playingItem: RadioStation.mock)
+    NowPlayingDetailView(appState: AppState(), playingItem: RadioStation.mock, playerService: PlayerService())
 }

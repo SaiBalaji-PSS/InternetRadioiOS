@@ -17,15 +17,13 @@ class AppState: ObservableObject{
     @Published var currentPlayingMedia: RadioStation? //this will be used to populate bottom floaing player media details
     @Published var isMediaPlayingInApp: Bool = false
 }
-extension Notification.Name {
-    static let playbackStatusChanged = Notification.Name("PlaybackStatusChanged")
-}
 
-class PlayerService {
-    static let shared = PlayerService()
-    var isPlaying = false
+
+class PlayerService: ObservableObject {
+    
+    @Published var isPlaying = false
     var player: AVPlayer?
-    private init(){
+     init(){
         
         do {
                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
@@ -40,20 +38,23 @@ class PlayerService {
         self.player = AVPlayer(url: url)
         self.player?.play()
         self.isPlaying = true
-        NotificationCenter.default.post(name: .playbackStatusChanged, object: nil, userInfo: ["isPlaying": true])
+       // NotificationCenter.default.post(name: .playbackStatusChanged, object: nil, userInfo: ["isPlaying": true])
     }
     
     func pause(){
         if let player {
             player.pause()
             self.isPlaying = false
-            NotificationCenter.default.post(name: .playbackStatusChanged, object: nil, userInfo: ["isPlaying": false])
+          //  NotificationCenter.default.post(name: .playbackStatusChanged, object: nil, userInfo: ["isPlaying": false])
         }
     }
     
     func stop(){
         player = nil
         self.isPlaying = false
-        NotificationCenter.default.post(name: .playbackStatusChanged, object: nil, userInfo: ["isPlaying": false])
+      //  NotificationCenter.default.post(name: .playbackStatusChanged, object: nil, userInfo: ["isPlaying": false])
     }
 }
+
+
+

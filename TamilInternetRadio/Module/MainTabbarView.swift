@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabbarView: View {
     @StateObject private var appState = AppState()
+    @StateObject private var playerService = PlayerService()
     @State var isPlayerDetialPresented: Bool = false
     var body: some View {
         ZStack(alignment:.bottom){
@@ -16,18 +17,21 @@ struct MainTabbarView: View {
                 Tab("Search", systemImage: "magnifyingglass", content: {
                     SearchView()
                         .environmentObject(appState)
+                        .environmentObject(playerService)
                 })
                 Tab("Library",systemImage: "radio") {
                     LibraryView()
                         .environmentObject(appState)
+                        .environmentObject(playerService)
                 }
                 
             }
             if self.appState.shouldShowNowPlayingView && !self.appState.isDetailScreenActive{
-                //now playing view
-                NowplayingView(appState: appState)
+                //now playing bottom  view
+                NowplayingView(appState: appState, playerService: playerService)
                     .padding(.bottom,50)
                     .environmentObject(appState)
+                    .environmentObject(playerService)
                     .onTapGesture {
                         isPlayerDetialPresented = true 
                     }
@@ -35,8 +39,9 @@ struct MainTabbarView: View {
                 
         }.fullScreenCover(isPresented: $isPlayerDetialPresented) {
             if let currentPlayingMedia = self.appState.currentPlayingMedia{
-                StationDetailView(stationData: currentPlayingMedia)
+                StationDetailView(playerService: playerService,stationData: currentPlayingMedia)
                     .environmentObject(appState)
+                    .environmentObject(playerService)
             }
         }
         

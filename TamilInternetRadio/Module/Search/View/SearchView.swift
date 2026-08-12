@@ -16,6 +16,7 @@ struct SearchView: View {
     @State var shouldNavigateToDetail: Bool = false
     @State var selectedStation: RadioStation?
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var playerService: PlayerService
     var body: some View {
         NavigationStack{
             ZStack{
@@ -68,7 +69,7 @@ struct SearchView: View {
             
             .navigationDestination(isPresented: $shouldNavigateToDetail) {
                 if let selectedStation{
-                    StationDetailView(stationData: selectedStation)
+                    StationDetailView(playerService: playerService, stationData: selectedStation)
                 }
             }
         }

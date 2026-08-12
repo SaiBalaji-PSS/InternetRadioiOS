@@ -9,13 +9,35 @@ import SwiftUI
 
 struct StationDetailView: View {
     @EnvironmentObject var appState: AppState
-    @StateObject private var vm = StationDetailViewModel(service: NetworkService())
-  
+    
+    @EnvironmentObject var playerServiceObject: PlayerService
+    @StateObject private var vm: StationDetailViewModel
+    
     let stationData: RadioStation
+    
+    init(playerService: PlayerService,stationData: RadioStation){
+        
+        self.stationData = stationData
+        _vm = StateObject(wrappedValue: StationDetailViewModel(service: NetworkService(), playerService: playerService))
+    }
+  
+
     @State private var timer: Timer?
     @Environment(\.dismiss) var dismiss
     var body: some View {
-        VStack(spacing:28){
+        VStack(spacing:18){
+            HStack{
+                Spacer()
+                CustomPlayerButton(buttonImageName: vm.saveSuccess ? "heart.fill" : "heart", xOffset: 0.0) {
+                    if self.vm.saveSuccess{
+                        //already saved then remove from favorite
+                        self.vm.removeFromFavorite(radioStation: self.stationData)
+                    }
+                    else{
+                        self.vm.saveRadioStationToLibrary(radioStation: self.stationData)
+                    }
+                }.padding()
+            }
             AsyncImage(url: URL(string: stationData.favicon ?? "")) { image  in
                 image
                     .resizable()
@@ -79,7 +101,7 @@ struct StationDetailView: View {
                 
                 CustomPlayerButton(buttonImageName: self.vm.isPlaying ? "pause.fill" : "play.fill", xOffset: self.vm.isPlaying ? 0 : 3) {
                     
-                    if vm.isPlaying{
+                    if self.vm.isPlaying{
                         
                       
                         
@@ -112,7 +134,7 @@ struct StationDetailView: View {
                 
                 
             }.padding()
-            Spacer()
+           
             HStack{
                 Spacer()
                 CustomPlayerButton(buttonImageName: "xmark", xOffset: 0.0) {
@@ -123,16 +145,24 @@ struct StationDetailView: View {
             
         }
         .toolbarVisibility(.hidden, for: .tabBar)
+        .alert("Sora Radio", isPresented: $vm.showMessage, actions: {
+            Button("OK"){
+                
+            }
+        },message: {
+            Text(vm.message)
+        })
         .onAppear(perform: {
             
             self.appState.isDetailScreenActive = true
+            self.vm.checkIfStationIsAlreadySaved(radioStation: self.stationData)
             print("ON APPEAR CALLED \(self.appState.currentPlayingMedia?.name)")
             
             //This is needed to check if the station played in the app currently is same as the search tap navigation station. If true then only we need to pre populate the play/pause button status. If they are not equal then no need to pre populate the UI with play pause status
-            
+           
             if self.stationData.stationUuid == self.appState.currentPlayingMedia?.stationUuid{
-                self.vm.isPlaying = PlayerService.shared.isPlaying
-                if  PlayerService.shared.isPlaying{
+                self.vm.isPlaying = self.playerServiceObject.isPlaying
+                if  self.vm.isPlaying{
                     
                     self.vm.startLiveLabelBlinking()
                 }
@@ -151,6 +181,7 @@ struct StationDetailView: View {
 }
 
 #Preview {
-    StationDetailView(stationData: RadioStation.mock)
+    StationDetailView(playerService: PlayerService(), stationData: RadioStation.mock)
         .environmentObject(AppState())
+        .environmentObject(PlayerService())
 }

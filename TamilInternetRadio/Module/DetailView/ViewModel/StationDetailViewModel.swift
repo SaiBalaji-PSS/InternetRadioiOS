@@ -17,6 +17,7 @@ class StationDetailViewModel: ObservableObject{
     @Published var isPlaying: Bool = false
     @Published var saveSuccess: Bool = false
     @Published var liveLabelOpacity: Double = 0.0
+    let playerService: PlayerService
     var timer: Timer?
     
     private let service: NetworkServiceProtocol
@@ -24,8 +25,9 @@ class StationDetailViewModel: ObservableObject{
 //        "f4092372-9aac-4af6-8067-4d1c59ea4530": "https://radios.crabdance.com:8002/4" // big fm
 //    ]
     
-    init(service: NetworkServiceProtocol){
+    init(service: NetworkServiceProtocol,playerService: PlayerService){
         self.service = service
+        self.playerService = playerService
     }
     
     func getResolvedUrl(for stationId: String)async{
@@ -41,40 +43,41 @@ class StationDetailViewModel: ObservableObject{
             if result.ok{
                 if let url = result.url, let streamingURL = URL(string: url){
                     self.play(url: streamingURL)
-                    self.isPlaying = PlayerService.shared.isPlaying
+                    
                 }
                 else{
                     self.showMessage = true
                     self.message = "Invalid streaming url"
-                    self.isPlaying = false
+                  
                 }
             }
             else{
                 self.showMessage = true
                 self.message = "An error occured while resolving the streaming url"
-                self.isPlaying = false
+                
             }
         }
         catch{
             print(error)
             self.showMessage = true
             self.message = error.localizedDescription
-            self.isPlaying = false
+            
         }
     }
     func play(url: URL){
-        PlayerService.shared.play(url: url)
+        self.playerService.play(url: url)
         self.startLiveLabelBlinking()
+        self.isPlaying = true
     }
     func pause(){
-        PlayerService.shared.pause()
-        self.isPlaying = PlayerService.shared.isPlaying
+        self.playerService.pause()
+       
         self.stopLiveLabelBlinking()
+        self.isPlaying = false
     }
     //Stops the current play, refreshes streaming url
     func refresh(stationId: String)async {
-        PlayerService.shared.stop()
-        self.isPlaying = PlayerService.shared.isPlaying
+        self.playerService.stop()
         await self.getResolvedUrl(for: stationId)
         
     }
@@ -99,6 +102,51 @@ class StationDetailViewModel: ObservableObject{
         
     }
     
+    func removeFromFavorite(radioStation: RadioStation){
+        guard let stationId = radioStation.stationUuid else {
+           
+            return
+        }
+        
+        do {
+            let predicate = NSPredicate(format: "stationId == %@", stationId)
+            let matchingStations = try PersistenceController.shared.fetchAllDataWithPredicate(
+                from: "SavedRadioStation",   // <-- your Core Data entity name
+                predicate: predicate
+            )
+            if let matchingData = matchingStations.first{
+                try PersistenceController.shared.deleteData(data: matchingData)
+                self.saveSuccess = false
+            }
+        }
+        catch {
+            self.showMessage = true
+            self.message = error.localizedDescription
+            self.saveSuccess = false
+        }
+    }
+    
+    func checkIfStationIsAlreadySaved(radioStation: RadioStation) {
+        guard let stationId = radioStation.stationUuid else {
+           
+            return
+        }
+        
+        do {
+            let predicate = NSPredicate(format: "stationId == %@", stationId)
+            let matchingStations = try PersistenceController.shared.fetchAllDataWithPredicate(
+                from: "SavedRadioStation",   // <-- your Core Data entity name
+                predicate: predicate
+            )
+            self.saveSuccess = !matchingStations.isEmpty
+        }
+        catch {
+            self.showMessage = true
+            self.message = error.localizedDescription
+            self.saveSuccess = false
+        }
+    }
+    
     func startLiveLabelBlinking(){
         if self.timer?.isValid ?? false{
             return
@@ -111,6 +159,7 @@ class StationDetailViewModel: ObservableObject{
             }
         })
     }
+    
     
     func stopLiveLabelBlinking(){
         self.timer?.invalidate()
