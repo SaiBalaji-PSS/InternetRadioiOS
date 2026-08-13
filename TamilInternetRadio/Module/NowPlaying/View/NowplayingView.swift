@@ -71,21 +71,7 @@ struct NowplayingView: View {
                 }
             }
             
-        }.frame(maxWidth: .infinity).padding(.horizontal).padding(.vertical,6).glassEffect()
-            .onAppear {
-//                playbackObserver = NotificationCenter.default.addObserver(forName: .playbackStatusChanged, object: nil, queue: .main) { notification in
-//                    guard let isPlaying = notification.userInfo?["isPlaying"] as? Bool else { return }
-//                    Task { @MainActor in
-//                        vm.isPlaying = isPlaying
-//                    }
-//                }
-            }
-            .onDisappear {
-//                if let playbackObserver {
-//                    NotificationCenter.default.removeObserver(playbackObserver)
-//                    self.playbackObserver = nil
-//                }
-            }
+        }.frame(maxWidth: .infinity).padding(.horizontal).padding(.vertical,6).contentShape(Rectangle()).glassEffect()
     }
 }
 

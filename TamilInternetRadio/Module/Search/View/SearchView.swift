@@ -23,7 +23,7 @@ struct SearchView: View {
                 ScrollView(.vertical) {
                     LazyVStack{
                         ForEach(self.vm.searchResult,id:\.id){ searchResult in
-                            SearchCell(stationData: searchResult)
+                            SearchCell(stationData: searchResult).contentShape(Rectangle())
                                 .onTapGesture {
                                     self.selectedStation = searchResult
                                     self.shouldNavigateToDetail = true

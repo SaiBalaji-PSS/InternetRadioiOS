@@ -63,6 +63,7 @@ enum EndPoint: EndPointProtocol{
     case allStations
     case search(name: String)
     case streamingUrl(stationId: String)
+    case stationInfo(stationId: String)
     
     var baseURL: URL {
         switch self {
@@ -72,6 +73,8 @@ enum EndPoint: EndPointProtocol{
             return URL(string:Constant.BASE_URL)!
         case .streamingUrl(let stationId):
             return URL(string:Constant.BASE_URL)!
+        case .stationInfo(let stationId):
+            return URL(string: Constant.BASE_URL)!
         }
     }
     
@@ -83,6 +86,8 @@ enum EndPoint: EndPointProtocol{
             return "stations/search"
         case .streamingUrl(let stationId):
             return "url/\(stationId)"
+        case .stationInfo(let stationId):
+            return "stations/byuuid/\(stationId)"
         }
     }
     
@@ -94,6 +99,8 @@ enum EndPoint: EndPointProtocol{
             return .GET
         case .streamingUrl(let stationId):
             return .GET
+        case .stationInfo(_ ):
+            return .GET
         }
     }
     
@@ -104,6 +111,8 @@ enum EndPoint: EndPointProtocol{
         case .search(let name):
             return ["User-Agent": "TamilInternetRadio/1.0"]
         case .streamingUrl(let stationId):
+            return ["User-Agent": "TamilInternetRadio/1.0"]
+        case .stationInfo( _):
             return ["User-Agent": "TamilInternetRadio/1.0"]
         }
     }
@@ -123,6 +132,8 @@ enum EndPoint: EndPointProtocol{
                 URLQueryItem(name: "name", value: "\(name)")
             ]
         case .streamingUrl(let stationId):
+            return []
+        case .stationInfo(_ ):
             return []
         }
     }

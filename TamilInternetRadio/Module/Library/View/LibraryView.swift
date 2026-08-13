@@ -8,9 +8,14 @@
 import SwiftUI
 
 struct LibraryView: View {
-    @StateObject private var vm = LibraryViewModel(persistenceController: LibraryPersistenceController())
+    @StateObject private var vm = LibraryViewModel(persistenceController: LibraryPersistenceController(),networkService: NetworkService())
     @State private var shouldNavigateToDetailScreen: Bool = false
     @State private var selectedRadioStation: SavedRadioStation?
+    @EnvironmentObject var playerService: PlayerService
+    
+   
+    
+    
     var body: some View {
         
         NavigationStack{
@@ -20,24 +25,33 @@ struct LibraryView: View {
                         LibraryItemCell(libraryItem: data)
                             .onTapGesture {
                                 self.selectedRadioStation = data
-                                self.shouldNavigateToDetailScreen = true
+                                if let selectedRadioStationId = selectedRadioStation?.stationId{
+                                    Task{
+                                        await vm.getStationInfo(id: selectedRadioStationId)
+                                        self.shouldNavigateToDetailScreen = true
+                                    }
+                                }
+                              
                             }
                     }
                 }
             }
             .fullScreenCover(isPresented: $shouldNavigateToDetailScreen, content: {
-                if let selectedRadioStation{
-                  //  StationDetailView(stationData: <#T##RadioStation#>)
+                if let stationData =  vm.stationData{
+                    StationDetailView(playerService: playerService, stationData: stationData)
                 }
             })
             
                 .onAppear {
                     vm.fetchAllSavedStations()
+                    
                 }
+               
         }
     }
 }
 
 #Preview {
     LibraryView()
+        .environmentObject(PlayerService())
 }

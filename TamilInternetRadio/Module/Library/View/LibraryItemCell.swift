@@ -35,7 +35,7 @@ struct LibraryItemCell: View {
         .frame(width: 120,height: 120) // cell width
         .background(
             RoundedRectangle(cornerRadius: 6.0)
-                       .fill(Color.white)
+                       .fill(Color.clear)
                )
                .overlay(
                 RoundedRectangle(cornerRadius: 6.0)

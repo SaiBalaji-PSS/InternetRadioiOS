@@ -11,6 +11,7 @@ import CoreData
 
 final class LibraryTests: XCTestCase{
     var mockPersistenceController: MockLibraryPeristenceController?
+    var networkService: NetworkServiceProtocol?
     var memoryController: PersistenceController?
     var sut: LibraryViewModel?
     
@@ -18,10 +19,13 @@ final class LibraryTests: XCTestCase{
         super.setUp()
         memoryController = PersistenceController(inMemory: true)
         mockPersistenceController = MockLibraryPeristenceController(controller: memoryController!)
-        sut = LibraryViewModel(persistenceController: mockPersistenceController!)
+        networkService = MockNetworkService()
+        sut = LibraryViewModel(persistenceController: mockPersistenceController!,networkService: networkService!)
     }
     override func tearDown() {
         mockPersistenceController = nil
+        networkService = nil
+        memoryController = nil 
         super.tearDown()
     }
     

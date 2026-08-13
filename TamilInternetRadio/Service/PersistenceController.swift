@@ -12,10 +12,28 @@ import Combine
 protocol PersistenceProtocol{
     func  fetchAllData<T: NSManagedObject>(from entityName: String)throws -> [T]
     func fetchAllDataWithPredicate<T:NSManagedObject>(from entityName: String,predicate: NSPredicate)throws -> [T]
+    func getViewContext() -> NSManagedObjectContext
     func saveData()throws
     
 }
+extension PersistenceProtocol{
+    func  fetchAllData<T: NSManagedObject>(from entityName: String)throws -> [T]{
+        return []
+    }
+    func fetchAllDataWithPredicate<T:NSManagedObject>(from entityName: String,predicate: NSPredicate)throws -> [T]{
+        return []
+    }
+}
 
+
+class DetailPersistenceController: PersistenceProtocol{
+    func saveData() throws {
+        try PersistenceController.shared.saveData()
+    }
+    func getViewContext() -> NSManagedObjectContext {
+        return PersistenceController.shared.context
+    }
+}
 
 class LibraryPersistenceController: PersistenceProtocol{
     func  fetchAllData<T: NSManagedObject>(from entityName: String)throws -> [T] {
@@ -28,6 +46,9 @@ class LibraryPersistenceController: PersistenceProtocol{
     
     func saveData() throws {
         try PersistenceController.shared.saveData()
+    }
+    func getViewContext() -> NSManagedObjectContext {
+        return PersistenceController.shared.context
     }
 }
 
@@ -59,6 +80,10 @@ class MockLibraryPeristenceController: PersistenceProtocol{
             
         }
         try controller.saveData()
+    }
+    
+    func getViewContext() -> NSManagedObjectContext {
+        return controller.context
     }
 }
 

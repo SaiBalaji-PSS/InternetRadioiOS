@@ -18,7 +18,7 @@ struct StationDetailView: View {
     init(playerService: PlayerService,stationData: RadioStation){
         
         self.stationData = stationData
-        _vm = StateObject(wrappedValue: StationDetailViewModel(service: NetworkService(), playerService: playerService))
+        _vm = StateObject(wrappedValue: StationDetailViewModel(service: NetworkService(), playerService: playerService,persistenceController: DetailPersistenceController()))
     }
   
 
@@ -99,9 +99,9 @@ struct StationDetailView: View {
                 
                 Spacer()
                 
-                CustomPlayerButton(buttonImageName: self.vm.isPlaying ? "pause.fill" : "play.fill", xOffset: self.vm.isPlaying ? 0 : 3) {
+                CustomPlayerButton(buttonImageName: self.playerServiceObject.isPlaying ? "pause.fill" : "play.fill", xOffset: self.playerServiceObject.isPlaying ? 0 : 3) {
                     
-                    if self.vm.isPlaying{
+                    if self.playerServiceObject.isPlaying{
                         
                       
                         
@@ -114,7 +114,7 @@ struct StationDetailView: View {
                         if let stationId = stationData.stationUuid{
                             Task{
                                 await self.vm.getResolvedUrl(for: stationId)
-                                if self.vm.isPlaying{
+                                if self.playerServiceObject.isPlaying{
                                     self.appState.currentPlayingMedia = stationData
                                     self.appState.shouldShowNowPlayingView = true
                                 }
@@ -163,7 +163,7 @@ struct StationDetailView: View {
            
             if self.stationData.stationUuid == self.appState.currentPlayingMedia?.stationUuid{
                 self.vm.isPlaying = self.playerServiceObject.isPlaying
-                if  self.vm.isPlaying{
+                if self.playerServiceObject.isPlaying{
                     
                     self.vm.startLiveLabelBlinking()
                 }
